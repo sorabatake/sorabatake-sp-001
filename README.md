@@ -12,5 +12,5 @@ pip install -r requirements.txt
 ```
 
 ## 貢献者
-- 
--
+- https://github.com/syu-tan
+- https://github.com/ayano1212
