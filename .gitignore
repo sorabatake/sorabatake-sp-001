@@ -1,0 +1,10 @@
+# data
+
+
+# cache
+**.pyc
+**__pycache__/
+.**_cache/
+
+# logs
+**.log
