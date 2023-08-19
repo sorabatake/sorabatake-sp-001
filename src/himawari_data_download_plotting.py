@@ -9,8 +9,6 @@ import cartopy.feature as cfeature
 import ftplib
 import pandas as pd
 
-
-
 def download_file(url, filename, server, band, ftp=False):
     if not os.path.isfile(filename):
         print(f"*** ファイルをダウンロードしています: {filename}")
@@ -24,12 +22,12 @@ def download_file(url, filename, server, band, ftp=False):
             urllib.request.urlretrieve(url, filename)
 
 def main():
-    # 日付範囲と時間範囲を指定
+    # 日付範囲と時間範囲(UTC)を指定
     start_date = "20230808"
     end_date = "20230810"
     start_hour = 0
     end_hour = 23
-　　　　　　　　
+    
     # 千葉大学のサーバ    
     server = "hmwr829gr.cr.chiba-u.ac.jp"
     tail = "fld.geoss.bz2"
@@ -37,7 +35,7 @@ def main():
     ch = "01"
     lon_min, lon_max = 85, 205
     lat_min, lat_max = -60, 60
-    n = 6000
+    pixel_num = 6000
     # ひまわりデータの範囲
     extent_hmwr = (lon_min, lon_max, lat_min, lat_max)
 
@@ -50,6 +48,21 @@ def main():
             fname_hmwr = f"{date_time}.{band}.{ch}.{tail}"
             url_hmwr = f'ftp://{server}/{date_time[0:6]}/{band.upper()}/{fname_hmwr}'
             download_file(url_hmwr, fname_hmwr, server, band, ftp=True)
+            
+              # count2tbbテーブルファイルのダウンロードと解凍
+            fname_cnt2tbb = 'count2tbb_v103.tgz'
+            url = f'http://www.cr.chiba-u.jp/databases/GEO/H8_9/FD/{fname_cnt2tbb}'
+
+            # ファイルのダウンロード
+            if not os.path.isfile(fname_cnt2tbb):
+                print("*** 変換テーブルをダウンロードしています：", fname_cnt2tbb)
+                urllib.request.urlretrieve(url, fname_cnt2tbb)
+
+            # ファイルの解凍
+            if not os.path.isdir(f'count2tbb_v103'):
+                print("*** 変換テーブルを解凍しています")
+                with tarfile.open(fname_cnt2tbb, "r:gz") as tarin:
+                    tarin.extractall()
 
             # カウント値から黒体放射輝度温度(TBB)への変換テーブルの読み込み
             _, cnt2tbb = np.loadtxt(f'count2tbb_v103/{band}.{ch}', unpack=True)
@@ -57,9 +70,9 @@ def main():
             #  bz2を使用して，ひまわり画像を開く。
             with bz2.open(fname_hmwr) as bz2fin:
                 buf_cnt = bz2fin.read()
-                data_cnt = np.frombuffer(buf_cnt, dtype='>u2').reshape(n, n)
+                data_cnt = np.frombuffer(buf_cnt, dtype='>u2').reshape(pixel_num, pixel_num)
                 
-　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　# 画像データを変換テーブルで変換する
+                # 画像データを変換テーブルで変換する
                 data_tbb = cnt2tbb[data_cnt]  
 
             # プロット
