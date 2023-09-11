@@ -49,7 +49,7 @@ def main():
             url_hmwr = f'ftp://{server}/{date_time[0:6]}/{band.upper()}/{fname_hmwr}'
             download_file(url_hmwr, fname_hmwr, server, band, ftp=True)
             
-            # count2tbbテーブルファイルのダウンロードと解凍
+              # count2tbbテーブルファイルのダウンロードと解凍
             fname_cnt2tbb = 'count2tbb_v103.tgz'
             url = f'http://www.cr.chiba-u.jp/databases/GEO/H8_9/FD/{fname_cnt2tbb}'
 
